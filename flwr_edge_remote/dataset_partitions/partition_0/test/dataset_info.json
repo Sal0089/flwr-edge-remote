@@ -1,0 +1,71 @@
+{
+  "builder_name": "parquet",
+  "citation": "",
+  "config_name": "Decoy",
+  "dataset_name": "p2_s",
+  "dataset_size": 113626200,
+  "description": "",
+  "download_checksums": {
+    "hf://datasets/AIML-TUDA/P2S@369a8afee32f9fc7860dc5487df105c6fe905933/Decoy/train-00000-of-00001.parquet": {
+      "num_bytes": 35869483,
+      "checksum": null
+    },
+    "hf://datasets/AIML-TUDA/P2S@369a8afee32f9fc7860dc5487df105c6fe905933/Decoy/test-00000-of-00001.parquet": {
+      "num_bytes": 35858278,
+      "checksum": null
+    }
+  },
+  "download_size": 71727761,
+  "features": {
+    "dowel_deep_drawing_ow": {
+      "feature": {
+        "dtype": "float64",
+        "_type": "Value"
+      },
+      "length": 4096,
+      "_type": "Sequence"
+    },
+    "label": {
+      "names": [
+        "normal",
+        "defect"
+      ],
+      "_type": "ClassLabel"
+    },
+    "speed": {
+      "dtype": "int32",
+      "_type": "Value"
+    },
+    "mask": {
+      "feature": {
+        "dtype": "int32",
+        "_type": "Value"
+      },
+      "length": 4096,
+      "_type": "Sequence"
+    }
+  },
+  "homepage": "",
+  "license": "",
+  "size_in_bytes": 185353961,
+  "splits": {
+    "train": {
+      "name": "train",
+      "num_bytes": 57917242,
+      "num_examples": 1154,
+      "dataset_name": "p2_s"
+    },
+    "test": {
+      "name": "test",
+      "num_bytes": 55708958,
+      "num_examples": 1110,
+      "dataset_name": "p2_s"
+    }
+  },
+  "version": {
+    "version_str": "0.0.0",
+    "major": 0,
+    "minor": 0,
+    "patch": 0
+  }
+}
