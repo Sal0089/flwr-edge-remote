@@ -9,6 +9,7 @@ with optional support for mask-aware models and speed-robustness analysis.
 
 import torch
 import numpy as np 
+import random
 from pathlib import Path
 from torch import nn
 from datasets import load_from_disk
@@ -100,6 +101,7 @@ def train(net, trainloader, epochs, learning_rate, device):
     net.train()
 
     running_loss = 0.0
+    mask_dropout_rate = 0.3  # Probability to drop mask during training
 
     for _ in range(epochs):
         for batch in trainloader:
@@ -112,6 +114,11 @@ def train(net, trainloader, epochs, learning_rate, device):
                 mask = batch.get("mask", None)
                 if mask is not None:
                     mask = mask.to(device).float().unsqueeze(1)
+
+                    # Apply dropout on mask elements (drop individual samples, not whole batch)
+                    dropout_mask = (torch.rand_like(mask) > mask_dropout_rate).float()
+                    mask = mask * dropout_mask
+
                 output = net(x, mask=mask)
             else:
                 output = net(x)
@@ -126,7 +133,7 @@ def train(net, trainloader, epochs, learning_rate, device):
     return avg_trainloss
 
 
-def test(net, testloader, device, use_mask=False, alpha=0.5):
+def test(net, testloader, device):
     """Evaluate the model, optionally supporting mask-based evaluation."""
     net.to(device)
     net.eval()
@@ -134,8 +141,9 @@ def test(net, testloader, device, use_mask=False, alpha=0.5):
 
     total_loss = 0.0
     correct = 0
-    masked_correct = 0
-    masked_samples = 0
+
+    correct_with_mask = 0
+    correct_without_mask = 0
     
     with torch.no_grad():
         for batch in testloader:
@@ -160,18 +168,32 @@ def test(net, testloader, device, use_mask=False, alpha=0.5):
             preds = (outputs > 0.5).float()
             correct += (preds == y).sum().item()
             
-            # Compute masked accuracy (only for masked samples)
+            # Compute masked and unmasked accuracy 
             if mask is not None:
-                for i in range(x.size(0)):
-                    if mask[i].sum() > 0:
-                        masked_samples += 1
-                        masked_correct += (preds[i] == y[i]).float().item()
+                mask = mask.to(device).float()
+                
+                # With mask guidance (which is provided in the model with attention)
+                preds_with = (net(x, mask) > 0.5).float().squeeze()
+                correct_with_mask += (preds_with == y).sum().item()
+                
+                # Without mask (blind)
+                preds_without = (net(x, mask=None) > 0.5).float().squeeze()
+                correct_without_mask += (preds_without == y).sum().item()
+            else:
+                # No mask available
+                preds = (net(x) > 0.5).float().squeeze()
+                correct_with_mask += (preds == y).sum().item()
+                correct_without_mask += (preds == y).sum().item()
 
-    avg_loss = total_loss / len(testloader)
-    accuracy = correct / len(testloader.dataset)
-    masked_acc = masked_correct / masked_samples if masked_samples > 0 else 0.0
+    eval_loss = total_loss / len(testloader)
+    eval_acc = correct / len(testloader.dataset)
+
+    # Computes mask benefit
+    masked_acc = correct_with_mask / len(testloader.dataset)
+    unmasked_acc = correct_without_mask / len(testloader.dataset)
+    mask_benefit = masked_acc - unmasked_acc
 
     # Compute robustness to speed variation
     speed_stats = test_speed_robustness_detailed(net, testloader, device)
 
-    return avg_loss, accuracy, masked_acc, speed_stats
+    return eval_loss, eval_acc, mask_benefit, speed_stats

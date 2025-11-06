@@ -28,7 +28,7 @@ app = ClientApp()
 def train(msg: Message, context: Context):
     """Train the model locally and return weights + metrics."""
     
-    model = CNN()
+    model = CNNWithAttention()
     model.load_state_dict(msg.content["arrays"].to_torch_state_dict())
 
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
@@ -70,7 +70,7 @@ def train(msg: Message, context: Context):
 @app.evaluate()
 def evaluate(msg: Message, context: Context):
     """Evaluate the model on local data."""
-    model = CNN()
+    model = CNNWithAttention()
     model.load_state_dict(msg.content["arrays"].to_torch_state_dict())
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     model.to(device)
@@ -79,7 +79,7 @@ def evaluate(msg: Message, context: Context):
     partition_id = int(context.node_config.get("client-id"))
     _, valloader = get_or_load_dataloaders(client_id=partition_id, batch_size=batch_size)
 
-    eval_loss, eval_acc, masked_acc, speed_stats = test_fn(
+    eval_loss, eval_acc, mask_benefit, speed_stats = test_fn(
         net=model, 
         testloader=valloader, 
         device=device
@@ -88,7 +88,7 @@ def evaluate(msg: Message, context: Context):
     metrics = {
         "eval-loss": float(eval_loss),
         "eval-acc": float(eval_acc),
-        "masked-acc": float(masked_acc),
+        "mask-benefit": float(mask_benefit),
         "speed-range": float(speed_stats['range']),
         "num-examples": len(valloader.dataset),
     }

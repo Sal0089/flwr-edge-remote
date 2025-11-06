@@ -10,7 +10,6 @@ from flwr.serverapp import Grid, ServerApp
 from flwr.serverapp.strategy import FedAvg
 
 from flwr_edge_remote.models.models import CNN, CNNWithAttention
-from flwr_edge_remote.custom_strategies.custom_fedavg import MaskAwareFedAvg
 
 # Create ServerApp
 app = ServerApp()
@@ -24,24 +23,14 @@ def main(grid: Grid, context: Context) -> None:
     num_rounds: int = context.run_config["num-server-rounds"]
 
     # Load global model
-    global_model = CNN()
+    global_model = CNNWithAttention()
     arrays = ArrayRecord(global_model.state_dict())
 
     # Initialize FedAvg strategy
-    strategy_name = context.run_config.get("strategy-name", "FedAvg")
-    if strategy_name == "FedAvg":
-        strategy = FedAvg(
-            fraction_train=fraction_train, 
-            fraction_evaluate=fraction_evaluate,
-        )
-    elif strategy_name == "MaskAwareFedAvg":
-        strategy = MaskAwareFedAvg(
-            fraction_train=fraction_train,
-            fraction_evaluate=fraction_evaluate,
-            alpha=0.5  # Put clear comment about the alpha true meaning
-        )
-    else:
-        raise ValueError(f"Unknown strategy: {strategy_name}")
+    strategy = FedAvg(
+        fraction_train=fraction_train, 
+        fraction_evaluate=fraction_evaluate,
+    )
 
     # Start strategy for `num_rounds`
     result = strategy.start(
