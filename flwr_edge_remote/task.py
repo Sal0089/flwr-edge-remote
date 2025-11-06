@@ -156,9 +156,7 @@ def test(net, testloader, device):
                 mask = batch.get("mask", None)
                 if mask is not None:
                     mask = mask.to(device).float().unsqueeze(1)
-            
-            # Forward pass (with or without mask)
-            if hasattr(net, "supports_mask") and getattr(net, "supports_mask", False):
+                # Forward pass (with or without mask)
                 outputs = net(x, mask=mask)
             else:
                 outputs = net(x)

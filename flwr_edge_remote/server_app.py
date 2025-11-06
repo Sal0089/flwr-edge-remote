@@ -21,9 +21,15 @@ def main(grid: Grid, context: Context) -> None:
     fraction_train: float = context.run_config["fraction-train"]
     fraction_evaluate: float = context.run_config["fraction-evaluate"]
     num_rounds: int = context.run_config["num-server-rounds"]
+    model_name: str = context.run_config["model-name"]
 
     # Load global model
-    global_model = CNNWithAttention()
+    if model_name == "CNN":
+        global_model = CNN()
+    elif model_name == "CNNWithAttention":
+        global_model = CNNWithAttention()
+    else:   
+        raise ValueError(f"Unknown model name: {model_name}")
     arrays = ArrayRecord(global_model.state_dict())
 
     # Initialize FedAvg strategy

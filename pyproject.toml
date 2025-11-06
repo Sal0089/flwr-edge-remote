@@ -31,13 +31,13 @@ serverapp = "flwr_edge_remote.server_app:app"
 clientapp = "flwr_edge_remote.client_app:app"
 
 [tool.flwr.app.config]
-num-server-rounds = 2
+num-server-rounds = 1
 fraction-train = 0.5
 fraction-evaluate = 1
 local-epochs = 2
 learning-rate = 0.0005
 batch-size = 32
-strategy-name = "FedAvg"
+model-name = "CNNWithAttention"
 
 [tool.flwr.federations]
 default = "local-simulation"

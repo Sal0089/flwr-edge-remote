@@ -27,8 +27,15 @@ app = ClientApp()
 @app.train()
 def train(msg: Message, context: Context):
     """Train the model locally and return weights + metrics."""
-    
-    model = CNNWithAttention()
+
+    # Load model
+    model_name: str = context.run_config["model-name"]
+    if model_name == "CNN":
+        model = CNN()
+    elif model_name == "CNNWithAttention":
+        model = CNNWithAttention()
+    else:   
+        raise ValueError(f"Unknown model name: {model_name}")
     model.load_state_dict(msg.content["arrays"].to_torch_state_dict())
 
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
@@ -70,7 +77,15 @@ def train(msg: Message, context: Context):
 @app.evaluate()
 def evaluate(msg: Message, context: Context):
     """Evaluate the model on local data."""
-    model = CNNWithAttention()
+
+    # Load model
+    model_name: str = context.run_config["model-name"]
+    if model_name == "CNN":
+        model = CNN()
+    elif model_name == "CNNWithAttention":
+        model = CNNWithAttention()
+    else:   
+        raise ValueError(f"Unknown model name: {model_name}")
     model.load_state_dict(msg.content["arrays"].to_torch_state_dict())
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     model.to(device)
