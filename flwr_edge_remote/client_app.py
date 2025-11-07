@@ -58,7 +58,6 @@ def train(msg: Message, context: Context):
         device=device
     )
 
-
     # Builds response Message
     arrays = ArrayRecord(model.state_dict())
     metrics = {

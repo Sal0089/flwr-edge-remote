@@ -24,7 +24,6 @@ def normalization(train_df: pd.DataFrame, test_df: pd.DataFrame):
     Apply normalization to the main features of the AIML-TUDA/P2S dataset.
     
     - dowel_deep_drawing_ow: sample-wise z-score standardization (time series)
-    - speed: global standardization (fit on train, transform on test)
     - mask: left unchanged (binary annotation)
     """
     print("Normalizing data...")
