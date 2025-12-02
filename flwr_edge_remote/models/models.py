@@ -12,7 +12,7 @@ class CNN(nn.Module):
     # Definition of the network layers
     def __init__(self, input_length=4096):
         super().__init__()  # Inherits from nn.Module
-        self.supports_mask = True  # Indicates that this model does not use dataset["mask"]
+        self.supports_mask = False  # Indicates that this model does not use dataset["mask"]
         
         # Feature extraction with progressively smaller kernels
         self.conv1 = nn.Conv1d(1, 32, kernel_size=15, padding=7)
